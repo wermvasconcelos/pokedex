@@ -15,7 +15,7 @@ export default function PokdeCard({ name, image, types }) {
       <CardMedia
         sx={{ height: 140 }}
         image={image}
-        title="green iguana"
+        title={name}
       />
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="center">
