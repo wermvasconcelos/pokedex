@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PokdeCard from "../components/PokeCard";
 import NavBar from "../components/NavBar";
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Container, Grid, Pagination } from "@mui/material";
 import axios from "axios";
 import { Skeletons } from "../components/Skeletons";
 import { useNavigate } from "react-router-dom";
@@ -9,86 +9,102 @@ import InputQtdPokemon from "../components/InputQtdPokemon";
 
 export const Home = ({ setPokemonData }) => {
     const [pokemons, setPokemons] = useState([]);
-    const [updPokemons, setUpdPokemons] = useState([]);
-    const navigate = useNavigate()
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+    const navigate = useNavigate();
 
     useEffect(() => {
         getPokemons();
-    }, [])
+    }, [currentPage]);
 
-    const getPokemons = () => {
-        var endpoints = []
-        
-        for (var i = 1; i < 1011; i++) {
-            endpoints.push(`https://pokeapi.co/api/v2/pokemon/${i}/`)
+    const getPokemons = async () => {
+        try {
+            const startIndex = (currentPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(startIndex + itemsPerPage - 1, 1010);
+
+            const responses = await axios.all(
+                Array.from({ length: endIndex - startIndex + 1 }, (_, index) =>
+                    axios.get(`https://pokeapi.co/api/v2/pokemon/${startIndex + index}`)
+                )
+            );
+
+            const data = responses.map((res) => res.data);
+            setPokemons(data);
+        } catch (error) {
+            console.error("Error fetching Pokemon data:", error);
         }
+    };
 
-        var response = axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
-        .then((res) => { 
-            setPokemons(res)
-            setUpdPokemons([...res]);
-        });
-        
-        
-        // axios
-        // .get("https://pokeapi.co/api/v2/pokemon?Limit=50")
-        // .then((res) => setPokemons(res.data.results))
-        // .catch((err) => console.log(err));
+    const handlePageChange = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const renderPokemons = () => {
+        return pokemons.map((pokemon, key) => (
+            <Grid item xs={12} sm={6} md={4} lg={2} key={key}>
+                <Box
+                    onClick={() => pokemonPickHandler(pokemon)}
+                    sx={{ cursor: "pointer" }}
+                >
+                    <PokdeCard
+                        name={pokemon.name}
+                        image={pokemon.sprites.front_default}
+                        types={pokemon.types}
+                    />
+                </Box>
+            </Grid>
+        ));
     };
 
     const pokemonFilter = (name) => {
-        var filteredPokemons = []
-
         if (name === "") {
-            getPokemons()
+            getPokemons();
         }
 
-        for (var i in pokemons) {
-            if (pokemons[i].data.name.toLowerCase().includes(name.toLowerCase())) {
-                filteredPokemons.push(pokemons[i])
-            }
-        }
+        const filteredPokemons = pokemons.filter((pokemon) =>
+            pokemon.name.toLowerCase().includes(name.toLowerCase())
+        );
 
-        setPokemons(filteredPokemons)
+        setPokemons(filteredPokemons);
+        setCurrentPage(1);
     };
 
     const modifyPokemonQtd = (qtd) => {
-        var filteredPokemons = []
-    
-        if (qtd == null || qtd == 0) {
-            getPokemons()
+
+        if (qtd == null || qtd === "") {
+            getPokemons();
         }
 
-        for (var i = 0; i < qtd ; i++) {
-            // Adiciona o pokemon atual ao array filteredPokemons
-            filteredPokemons.push(updPokemons[i]);
-        }
-        
-        setPokemons(filteredPokemons)
-
-    }
+        const filteredPokemons = pokemons.slice(0, qtd);
+        setPokemons(filteredPokemons);
+        setCurrentPage(1);
+    };
 
     const pokemonPickHandler = (pokemonData) => {
-        setPokemonData(pokemonData)
-        navigate("/profile")
-    }
+        setPokemonData(pokemonData);
+        navigate("/profile");
+    };
+
+    const totalPageCount = Math.ceil(1010 / itemsPerPage);
+
     return (
         <div>
             <NavBar pokemonFilter={pokemonFilter} />
             <Container maxWidth="false" align="center">
-                <InputQtdPokemon modifyPokemonQtd={modifyPokemonQtd}/>
+                <InputQtdPokemon modifyPokemonQtd={modifyPokemonQtd} />
+                <Box display="flex" justifyContent="center"  mb={4}>
+                    <Pagination
+                        count={totalPageCount}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                        style={{ marginTop: "20px" }}
+                    />
+                </Box>
                 <Grid container spacing={2}>
-                    {pokemons.length === 0 ? <Skeletons /> :
-                        pokemons.map((pokemon, key) =>
-                            <Grid item xs={12} sm={6} md={4} lg={2} key={key}>
-                                <Box onClick={() => pokemonPickHandler(pokemon.data)} sx={{cursor:"pointer"}}>
-                                    <PokdeCard name={pokemon.data.name} image={pokemon.data.sprites.front_default} types={pokemon.data.types} />
-                                </Box>
-                            </Grid>
-                        )}
+                    {pokemons.length === 0 ? <Skeletons /> : renderPokemons()}
                 </Grid>
-
             </Container>
         </div>
-    )
-}
+    );
+};
