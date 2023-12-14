@@ -5,9 +5,11 @@ import { Box, Container, Grid } from "@mui/material";
 import axios from "axios";
 import { Skeletons } from "../components/Skeletons";
 import { useNavigate } from "react-router-dom";
+import InputQtdPokemon from "../components/InputQtdPokemon";
 
 export const Home = ({ setPokemonData }) => {
     const [pokemons, setPokemons] = useState([]);
+    const [updPokemons, setUpdPokemons] = useState([]);
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -16,12 +18,18 @@ export const Home = ({ setPokemonData }) => {
 
     const getPokemons = () => {
         var endpoints = []
-        for (var i = 1; i < 150; i++) {
+        
+        for (var i = 1; i < 1011; i++) {
             endpoints.push(`https://pokeapi.co/api/v2/pokemon/${i}/`)
         }
 
-        var response = axios.all(endpoints.map((endpoint) => axios.get(endpoint))).then((res) => setPokemons(res));
-
+        var response = axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
+        .then((res) => { 
+            setPokemons(res)
+            setUpdPokemons([...res]);
+        });
+        
+        
         // axios
         // .get("https://pokeapi.co/api/v2/pokemon?Limit=50")
         // .then((res) => setPokemons(res.data.results))
@@ -44,6 +52,24 @@ export const Home = ({ setPokemonData }) => {
         setPokemons(filteredPokemons)
     };
 
+    const modifyPokemonQtd = (qtd) => {
+        console.log(updPokemons)
+        var filteredPokemons = []
+    
+        if (qtd == null || qtd == 0) {
+            getPokemons()
+        }
+
+        for (var i = 0; i < qtd ; i++) {
+            // Adiciona o pokemon atual ao array filteredPokemons
+            filteredPokemons.push(updPokemons[i]);
+        }
+        
+        setPokemons(filteredPokemons)
+
+        console.log("modificando "+qtd)
+    }
+
     const pokemonPickHandler = (pokemonData) => {
         setPokemonData(pokemonData)
         navigate("/profile")
@@ -52,6 +78,7 @@ export const Home = ({ setPokemonData }) => {
         <div>
             <NavBar pokemonFilter={pokemonFilter} />
             <Container maxWidth="false" align="center">
+                <InputQtdPokemon modifyPokemonQtd={modifyPokemonQtd}/>
                 <Grid container spacing={2}>
                     {pokemons.length === 0 ? <Skeletons /> :
                         pokemons.map((pokemon, key) =>
