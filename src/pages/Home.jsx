@@ -53,7 +53,6 @@ export const Home = ({ setPokemonData }) => {
     };
 
     const modifyPokemonQtd = (qtd) => {
-        console.log(updPokemons)
         var filteredPokemons = []
     
         if (qtd == null || qtd == 0) {
@@ -67,7 +66,6 @@ export const Home = ({ setPokemonData }) => {
         
         setPokemons(filteredPokemons)
 
-        console.log("modificando "+qtd)
     }
 
     const pokemonPickHandler = (pokemonData) => {
