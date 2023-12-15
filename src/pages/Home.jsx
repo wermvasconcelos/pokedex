@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PokdeCard from "../components/PokeCard";
 import NavBar from "../components/NavBar";
 import { Box, Container, Grid, Pagination } from "@mui/material";
@@ -10,7 +10,7 @@ import InputQtdPokemon from "../components/InputQtdPokemon";
 export const Home = ({ setPokemonData }) => {
     const [pokemons, setPokemons] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 20;
+    const itemsPerPage = useMemo(()=>20,[]);// Ou fora do componente 
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,7 +85,7 @@ export const Home = ({ setPokemonData }) => {
         navigate("/profile");
     };
 
-    const totalPageCount = Math.ceil(1010 / itemsPerPage);
+    const totalPageCount = useMemo(()=>Math.ceil(1010 / itemsPerPage),[itemsPerPage]); // "itemsPerPage" é usado, consequentemente é uma dependência, onde caso seja alterado irá influenciar o "totalPageCount", fazendo com que o valor seja atualizado e consequentemente uma nova renderização seja feita
 
     return (
         <div>
