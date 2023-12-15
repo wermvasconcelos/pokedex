@@ -9,9 +9,9 @@ import InputQtdPokemon from "../components/InputQtdPokemon";
 
 export const Home = ({ setPokemonData }) => {
     const [pokemons, setPokemons] = useState([]);
-    const [totalPokemonCount, setTotalPokemonCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = useMemo(()=>20,[]);// Ou fora do componente 
+    const [totalPokemonCount, setTotalPokemonCount] = useState(itemsPerPage);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -83,13 +83,13 @@ export const Home = ({ setPokemonData }) => {
 
     const modifyPokemonQtd = (qtd) => {
 
-        if (qtd == null || qtd === "") {
-            getPokemons();
-        }
+        // if (qtd == null || qtd === "") {
+        //     getPokemons();
+        // }
 
-        const filteredPokemons = pokemons.slice(0, qtd);
-        setPokemons(filteredPokemons);
-        setCurrentPage(1);
+        // const filteredPokemons = pokemons.slice(0, qtd);
+        // setPokemons(filteredPokemons);
+        // setCurrentPage(1);
     };
 
     const pokemonPickHandler = (pokemonData) => {
