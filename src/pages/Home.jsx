@@ -9,18 +9,30 @@ import InputQtdPokemon from "../components/InputQtdPokemon";
 
 export const Home = ({ setPokemonData }) => {
     const [pokemons, setPokemons] = useState([]);
+    const [totalPokemonCount, setTotalPokemonCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = useMemo(()=>20,[]);// Ou fora do componente 
     const navigate = useNavigate();
 
     useEffect(() => {
+        getTotalPokemonCount();
         getPokemons();
     }, [currentPage]);
+
+    const getTotalPokemonCount = async () => {
+        try {
+            const response = await axios.get("https://pokeapi.co/api/v2/pokemon-species/");
+            const count = response.data.count;
+            setTotalPokemonCount(count);
+        } catch (error) {
+            console.error("Error fetching total Pokemon count:", error);
+        }
+    };
 
     const getPokemons = async () => {
         try {
             const startIndex = (currentPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(startIndex + itemsPerPage - 1, 1010);
+            const endIndex = Math.min(startIndex + itemsPerPage - 1, totalPokemonCount);
 
             const responses = await axios.all(
                 Array.from({ length: endIndex - startIndex + 1 }, (_, index) =>
@@ -84,8 +96,8 @@ export const Home = ({ setPokemonData }) => {
         setPokemonData(pokemonData);
         navigate("/profile");
     };
-
-    const totalPageCount = useMemo(()=>Math.ceil(1010 / itemsPerPage),[itemsPerPage]); // "itemsPerPage" é usado, consequentemente é uma dependência, onde caso seja alterado irá influenciar o "totalPageCount", fazendo com que o valor seja atualizado e consequentemente uma nova renderização seja feita
+    
+    const totalPageCount = useMemo(() => Math.ceil(totalPokemonCount / itemsPerPage), [totalPokemonCount, itemsPerPage]); // "itemsPerPage" é usado, consequentemente é uma dependência, onde caso seja alterado irá influenciar o "totalPageCount", fazendo com que o valor seja atualizado e consequentemente uma nova renderização seja feita
 
     return (
         <div>
