@@ -12,7 +12,7 @@ Este projeto utiliza as seguintes tecnologias:
 
 A aplicação consome dados da PokeAPI (https://pokeapi.co) para exibir informações sobre diferentes Pokémon, como seus tipos, habilidades e estatísticas.
 
-O projeto também está disponível online, com deploy na Vercel: [Pokédex Vercel](https://pokedex-wermvasconcelos-projects.vercel.app)
+O projeto também está disponível online, com deploy na Vercel: [Pokédex Vercel](https://pokedex-wermvasconcelos-projects.vercel.app) 
 
 ## Instalação
 
